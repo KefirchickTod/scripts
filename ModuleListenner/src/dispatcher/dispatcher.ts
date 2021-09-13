@@ -1,7 +1,7 @@
 /**
  * @interface
  */
-import './interface';
+import '../interface';
 
 class EventDispatcher implements EventDispatcher.Dispatcher {
 
@@ -13,14 +13,16 @@ class EventDispatcher implements EventDispatcher.Dispatcher {
 
     /**
      * @return Object
-     * @param event
+     * @param notify
      */
-    dispatch(event: Function) {
+    dispatch(notify: string) {
 
-        for (let listener of this.provider.getListenerForEvent(event)) {
-            listener(event);
+        for (let listener of this.provider.getListenerForEvent(notify)) {
+            if (listener instanceof EventDispatcher.StoppableEvent) return listener;
+
+            listener(notify);
         }
 
-        return event;
+        return notify;
     }
 }

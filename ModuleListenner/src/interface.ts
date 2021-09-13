@@ -5,17 +5,17 @@ namespace EventDispatcher {
     export interface Dispatcher {
         /**
          * @return Object
-         * @param event
+         * @param notify
          */
-        dispatch(event: Function): Function
+        dispatch(notify: string): Function
     }
 
     export interface ListenerProvider {
         /**
-         * @param event
+         * @param notify
          * @return Iterable
          */
-        getListenerForEvent(event: Function);
+        getListenerForEvent(notify: string);
     }
 
     export interface StoppableEvent {
@@ -23,5 +23,15 @@ namespace EventDispatcher {
          * @return boolean
          */
         isPropagationStopped(): boolean;
+    }
+
+    export interface ListenerCollection {
+
+        add(listener: Function, notify: string): ListenerCollection;
+
+
+        get(notify: string);
+
+
     }
 }
