@@ -32,11 +32,15 @@
         };
     };
 
+
     class TableResize {
-        constructor(table, setting = {
-            'className': 'resizer',
-            content: '|'
-        }) {
+        /**
+         *
+         * @param table
+         * @param setting
+         * @example $setting  =  {className : string, content : string, mouseDownEvent : object, mouseUpEvent : object}
+         */
+        constructor(table, setting = {}) {
             this.table = table;
             this.setting = setting;
             this.readCols(table.querySelectorAll('th'));
@@ -51,11 +55,14 @@
 
             const resizer = document.createElement('span');
 
+            const className = this.setting.hasOwnProperty('className') ? this.setting.className : 'resizer';
             resizer.classList.add(this.setting.className);
 
+            let content = '|';
             if (this.setting.hasOwnProperty('content')) {
-                resizer.textContent += this.setting.content;
+                content = this.setting.content;
             }
+            resizer.textContent += content;
 
             col.appendChild(resizer);
 
@@ -77,10 +84,16 @@
 
         creatResizabledColumn(col, resizer) {
 
+            let $this = this;
+
             let x = 0;
             let w = 0;
 
             const mouseDownHandler = e => {
+
+                if ($this.setting.hasOwnProperty('mouseDownEvent')) {
+                    $this.setting.mouseDownEvent(e);
+                }
 
                 x = e.clientX;
 
@@ -99,12 +112,16 @@
             }, 2, true);
 
             const mouseUpHandler = () => {
+
+                if ($this.setting.hasOwnProperty('mouseUpEvent')) {
+                    $this.setting.mouseUpEvent();
+                }
+
                 document.removeEventListener('mousemove', mouseMoveHandler);
                 document.removeEventListener('mouseup', mouseUpHandler);
             };
 
 
-            let $this = this;
             $this.col = col;
             resizer.addEventListener('mousedown', mouseDownHandler);
         }

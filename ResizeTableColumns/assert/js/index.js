@@ -6,7 +6,16 @@ window.addEventListener("DOMContentLoaded", () => {
         const table = document.getElementById('resize-table');
 
 
-        const resize = new window.tableResize(table);
+        const resize = new window.tableResize(table,  {
+            mouseDownEvent : () => {
+                console.log('Event mouse down....')
+            },
+            mouseUpEvent : () => {
+                console.log("Event mouse up....")
+            },
+            content : '|',
+            className: 'resizer'
+        });
 
         console.log(resize);
     })();
