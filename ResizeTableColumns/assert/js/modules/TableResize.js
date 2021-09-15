@@ -10,10 +10,57 @@
         root.returnExports = factory(root.jQuery);
     }
 }(this, function ($) {
+    const debounce = (func, wait, immediate) => {
+        let timeout;
+
+        return function executedFunction() {
+            const context = this;
+            const args = arguments;
+
+            const later = function () {
+                timeout = null;
+                if (!immediate) func.apply(context, args);
+            };
+
+            const callNow = immediate && !timeout;
+
+            clearTimeout(timeout);
+
+            timeout = setTimeout(later, wait);
+
+            if (callNow) func.apply(context, args);
+        };
+    };
+
     class TableResize {
-        constructor(table) {
+        constructor(table, setting = {
+            'className': 'resizer',
+            content: '|'
+        }) {
             this.table = table;
-            this.cols = this.readCols(table.querySelectorAll('th'));
+            this.setting = setting;
+            this.readCols(table.querySelectorAll('th'));
+        }
+
+        createElementResize(col) {
+            const resizerContains = col.querySelector(`.${this.setting.className}`);
+
+            if (col.contains(resizerContains)) {
+                return resizerContains;
+            }
+
+            const resizer = document.createElement('span');
+
+            resizer.classList.add(this.setting.className);
+
+            if (this.setting.hasOwnProperty('content')) {
+                resizer.textContent += this.setting.content;
+            }
+
+            col.appendChild(resizer);
+
+            return resizer;
+
         }
 
         readCols(cols) {
@@ -21,12 +68,8 @@
                 throw new Error("Empty cols for generate Table Resize");
             }
             for (let col of cols) {
-                const resizer = document.createElement('span');
-                resizer.classList.add('resizer');
 
-                resizer.textContent += '|';
-
-                col.appendChild(resizer);
+                const resizer = this.createElementResize(col);
 
                 this.creatResizabledColumn(col, resizer);
             }
@@ -39,7 +82,7 @@
 
             const mouseDownHandler = e => {
 
-                x = e.offsetX - 5;
+                x = e.clientX;
 
                 w = col.offsetWidth;
 
@@ -48,11 +91,12 @@
                 document.addEventListener('mouseup', mouseUpHandler);
             };
 
-            const mouseMoveHandler = move => {
-                const dx = move.offsetX - x;
+            const mouseMoveHandler = debounce(move => {
+
+                const dx = document.documentElement.scrollLeft + move.clientX - x;
 
                 col.style.width = `${(dx + w) + (0)}px`;
-            };
+            }, 2, true);
 
             const mouseUpHandler = () => {
                 document.removeEventListener('mousemove', mouseMoveHandler);
@@ -64,6 +108,7 @@
             $this.col = col;
             resizer.addEventListener('mousedown', mouseDownHandler);
         }
+
     }
 
     return TableResize;
