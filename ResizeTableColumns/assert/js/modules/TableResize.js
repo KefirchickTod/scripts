@@ -92,7 +92,7 @@
             const mouseDownHandler = e => {
 
                 if ($this.setting.hasOwnProperty('mouseDownEvent')) {
-                    $this.setting.mouseDownEvent(e);
+                    $this.setting.mouseDownEvent(col);
                 }
 
                 x = e.clientX;
@@ -111,10 +111,10 @@
                 col.style.width = `${(dx + w) + (0)}px`;
             }, 2, true);
 
-            const mouseUpHandler = () => {
+            const mouseUpHandler = (e) => {
 
                 if ($this.setting.hasOwnProperty('mouseUpEvent')) {
-                    $this.setting.mouseUpEvent();
+                    $this.setting.mouseUpEvent(col);
                 }
 
                 document.removeEventListener('mousemove', mouseMoveHandler);
