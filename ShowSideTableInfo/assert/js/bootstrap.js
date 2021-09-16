@@ -1,2 +1,2 @@
-window.tableResize = require("@models/TableResize");
+window.sideTableInfo = require("@models/SideTableInfo");
 

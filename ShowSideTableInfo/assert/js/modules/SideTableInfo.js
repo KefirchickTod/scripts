@@ -10,7 +10,126 @@
         root.returnExports = factory(root.jQuery);
     }
 }(this, function ($) {
+
+
+    class EntriesType {
+
+        /**
+         * Global name for class container html
+         * @type {string}
+         */
+        static containerClass = 'entries-container';
+
+
+        constructor(entries) {
+            this.entries = entries;
+        }
+
+        /**
+         * Render container with some additional elements;
+         * @param content
+         * @returns {*}
+         */
+        static createContainer(content) {
+
+
+            if (document.getElementsByClassName(this.containerClass).length > 0) {
+                for (let elementsByClassNameKey of document.getElementsByClassName(this.containerClass)) {
+                    elementsByClassNameKey.remove();
+                }
+            }
+
+            const container = document.createElement('div');
+
+            container.classList.add(this.containerClass);
+
+            container.innerHTML = content;
+
+
+            const closeElement = document.createElement('span');
+            closeElement.classList.add('close-container');
+
+            container.appendChild(closeElement);
+
+            closeElement.addEventListener('click', () => {
+                container.remove();
+            });
+
+            document.body.appendChild(container);
+
+            return content;
+        }
+
+
+    }
+
+    class EntriesTypeText extends EntriesType {
+
+        constructor(entries) {
+            super(entries);
+        }
+
+        /**
+         * Render content from entries
+         * @returns {string}
+         */
+        render() {
+            const title = this.entries.title;
+            const text = this.entries.value;
+
+            return `Title: ${title}, text: ${text}`;
+
+        }
+    }
+
+    class EntriesTypeFactory {
+
+        /**
+         * Default processors for processing a entries data
+         * @type {{text: *}}
+         */
+        processing = {
+            text: EntriesTypeText,
+        };
+
+        constructor(processing = null) {
+            this.registerCustom(processing);
+
+        }
+
+        /**
+         * Add to factory custom processors
+         * @param processing
+         */
+        registerCustom(processing) {
+            if (processing === null) {
+                return;
+            }
+
+            for (let type in processing) {
+                this.processing[type] = processing;
+            }
+        }
+
+        /**
+         *
+         * @param type {string}
+         * @param value
+         * @return {Object}
+         */
+        factory(type, value) {
+            if (!this.processing.hasOwnProperty(type)) {
+                type = 'text';
+            }
+
+            return new this.processing[type](value);
+        }
+    }
+
     class SideTableInfo {
+
+        static processing = [];
+
         constructor(table, settings = {}) {
             this.setting = settings;
 
@@ -19,6 +138,15 @@
             this.colsId = this.readTableColsId(table);
         }
 
+
+        /**
+         * Register custom type processor
+         * @param type
+         * @param processing
+         */
+        static registerType(type, processing) {
+            SideTableInfo.processing[type] = processing;
+        }
 
         /**
          * Create button if not exist in
@@ -49,34 +177,72 @@
          * @return {Element}
          */
         readTableColsId(table) {
-            const cols = table.querySelector('tbody > tr');
+            const cols = table.querySelectorAll('tbody > tr');
 
-            let attr = [];
 
+            let colsId = [];
+
+
+            let iterator = 0;
             for (let tr of cols) {
 
-                if (!tr.hasAttribute(this.getNeedAttributeFromSetting())) {
-                    throw new Error("Cant find attr for tr");
-                    continue;
+
+                let attributeId = tr.getAttribute(this.getNeedAttributeFromSetting());
+
+
+                if (attributeId === null) {
+                    attributeId = iterator;
                 }
 
                 let button = this.createElementShowButton(tr);
-                this.triggerButtons(button, tr.getAttribute(this.getNeedAttributeFromSetting()));
+                this.handleButton(button, attributeId);
 
 
+                colsId[attributeId] = {'button': button, id: attributeId, 'tr': tr};
+
+                iterator++;
             }
 
-            return cols;
+
+            return colsId;
 
         }
 
 
         /**
          * Render side navigation by response
-         * @param response
+         * @param response: JSON|Object
          */
         renderByResponse(response) {
+            if (!response.hasOwnProperty('data')) {
+                throw new Error("Cant read data in json");
+                return;
+            }
 
+            const data = response.data;
+
+            const factory = new EntriesTypeFactory(SideTableInfo.processing);
+
+            let result = [];
+            for (let current in data) {
+                let entries = data[current];
+
+                if (typeof entries != 'object') {
+                    console.info("Entries must be typeof object");
+                    continue;
+                }
+
+                const type = entries.type;
+
+
+                result.push(factory.factory(type, entries).render());
+            }
+
+            if (result.length > 0) {
+                EntriesType.createContainer(result.join('\n'));
+            }
+
+            console.log(result);
         }
 
         /**
@@ -106,11 +272,18 @@
             // return this.getInSetting('model', null)
         }
 
+        trigger(id) {
+            const coll = this.colsId[id];
+
+            coll.button.click();
+        }
+
         /**
          * Init trigger for each individual button
          * @param button
+         * @param id
          */
-        triggerButtons(button) {
+        handleButton(button, id) {
             let $this = this;
             button.addEventListener('click', () => {
                 let module = $this.getNeedModuleNameFromSettingTableAttribute();
@@ -118,10 +291,21 @@
                 async function sending() {
                     const api = $this.getApiHandler();
 
-                    return await api(module);
+                    return await api({'module': module, 'id': id});
                 }
 
                 sending().then((response) => {
+                    if (!response.hasOwnProperty('status')) {
+                        throw new Error("Cant get status from response");
+                        return;
+                    }
+
+                    const status = response.status;
+
+                    if (status === 'error') {
+                        throw new Error(response.massage);
+                        return;
+                    }
                     $this.renderByResponse(response);
                 })
             });
@@ -130,7 +314,7 @@
 
         getApiHandler() {
             if (!this.hasInSetting('apiHandler')) {
-                throw new Error("Undefined handler");
+                throw new Error("Undefined apiHandler in setting");
             }
             return this.getInSetting('apiHandler');
         }
