@@ -14,6 +14,7 @@ module.exports = {
         extensions: ['.js', '.less'],
         alias: {
             '@models': path.resolve(__dirname, 'assert/js/modules'),
+            '@style': path.resolve(__dirname, 'assert/scss/'),
         }
     },
     output: {
@@ -28,7 +29,7 @@ module.exports = {
             jQuery: 'jquery',
         }),
         new HtmlWebpackPlugin({
-            template : path.resolve(__dirname, './index.html')
+            template: path.resolve(__dirname, './index.html')
         })
     ],
     optimization: {
@@ -68,5 +69,21 @@ module.exports = {
 
             },
         },
+    },
+    module: {
+        rules: [
+            {
+                test: /\.s[ac]ss$/i,
+                use: [
+                    // Creates `style` nodes from JS strings
+                    "style-loader",
+                    // Translates CSS into CommonJS
+                    "css-loader",
+                    // Compiles Sass to CSS
+                    "sass-loader",
+                ],
+            }
+        ]
     }
+
 };

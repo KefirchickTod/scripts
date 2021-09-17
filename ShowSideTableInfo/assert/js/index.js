@@ -6,16 +6,19 @@ window.addEventListener("DOMContentLoaded", () => {
         const table = document.getElementById('side-table');
 
 
+        console.log(window.sideTableInfo);
+
         const info = new window.sideTableInfo(table,
             {
                 model: 'User',
                 apiHandler: (request) => {
+                    const id = Math.random();
                     console.log(request);
                     return {
                         status: 'ok',
                         data: [
                             {
-                                title: 'Testing value',
+                                title: `Id : ${id} Testing value`,
                                 value: 'hello world',
                                 type: 'text',
                                 name: 'outer_name',

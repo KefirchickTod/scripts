@@ -1,13 +1,16 @@
 (function (root, factory) {
     if (typeof define === 'function' & define.amd) {
 
-        define(['jquery'], factory);
+        define(['@models/Modal'], factory);
+
     } else if (typeof exports === 'object') {
 
-        module.exports = factory(require('jquery'));
+        module.exports = factory(require('@models/Modal'));
+
     } else {
 
-        root.returnExports = factory(root.jQuery);
+        root.returnExports = factory(root.Modal);
+
     }
 }(this, function ($) {
 
@@ -55,7 +58,7 @@
                 container.remove();
             });
 
-            document.body.appendChild(container);
+
 
             return content;
         }
@@ -198,7 +201,9 @@
                 this.handleButton(button, attributeId);
 
 
-                colsId[attributeId] = {'button': button, id: attributeId, 'tr': tr};
+                const modal = new $.Modal(button);
+
+                colsId[attributeId] = {'button': button, id: attributeId, 'tr': tr, 'modal': modal};
 
                 iterator++;
             }
@@ -213,7 +218,7 @@
          * Render side navigation by response
          * @param response: JSON|Object
          */
-        renderByResponse(response) {
+        renderByResponse(response, id) {
             if (!response.hasOwnProperty('data')) {
                 throw new Error("Cant read data in json");
                 return;
@@ -234,13 +239,21 @@
 
                 const type = entries.type;
 
-
                 result.push(factory.factory(type, entries).render());
             }
 
+
             if (result.length > 0) {
-                EntriesType.createContainer(result.join('\n'));
+                const container = EntriesType.createContainer(result.join('\n'));
+
+                const modal = this.colsId[id].modal;
+
+                modal.content(container);
+
+                modal.trigger();
+
             }
+
 
             console.log(result);
         }
@@ -306,7 +319,7 @@
                         throw new Error(response.massage);
                         return;
                     }
-                    $this.renderByResponse(response);
+                    $this.renderByResponse(response, id);
                 })
             });
         }
