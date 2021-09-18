@@ -30,7 +30,7 @@
 
         /**
          * Render container with some additional elements;
-         * @param content
+         * @param content {Array}
          * @returns {*}
          */
         static createContainer(content) {
@@ -46,8 +46,7 @@
 
             container.classList.add(this.containerClass);
 
-            container.innerHTML = content;
-
+            container.append(...content);
 
             const closeElement = document.createElement('span');
             closeElement.classList.add('close-container');
@@ -59,8 +58,7 @@
             });
 
 
-
-            return content;
+            return container;
         }
 
 
@@ -72,15 +70,25 @@
             super(entries);
         }
 
+
         /**
          * Render content from entries
-         * @returns {string}
+         * @returns {Element|string}
          */
         render() {
-            const title = this.entries.title;
-            const text = this.entries.value;
 
-            return `Title: ${title}, text: ${text}`;
+            const typeContainer = document.createElement('div');
+            const title = document.createElement('h2');
+            const text = document.createElement('span');
+
+            title.innerText += this.entries.title;
+            text.innerText += this.entries.value;
+
+            typeContainer.classList.add('entries-type-text');
+
+            typeContainer.append(title, text);
+
+            return typeContainer;
 
         }
     }
@@ -157,9 +165,17 @@
          * @return {Element|HTMLButtonElement}
          */
         createElementShowButton(tr) {
-            const infoContains = tr.querySelector(`.${this.getNeedButtonClassFromSetting()}`);
 
-            if (tr.contains(infoContains)) {
+            const td = tr.children[this.getNeedTdIdFromSetting()];
+
+            if (!td) {
+                throw new Error("Undefined td with index " + this.getNeedTdIdFromSetting());
+            }
+
+
+            const infoContains = td.querySelector(`.${this.getNeedButtonClassFromSetting()}`);
+
+            if (td.contains(infoContains)) {
                 return infoContains;
             }
 
@@ -169,9 +185,18 @@
 
             infoButton.textContent += "Show side info";
 
-            tr.appendChild(infoButton);
+            td.appendChild(infoButton);
 
             return infoButton;
+        }
+
+
+        /**
+         * Return selector for getting tr
+         * @returns {string}
+         */
+        getNeedTrSelectorFromSetting() {
+            return this.getInSetting('trSelector', 'tbody > tr')
         }
 
         /**
@@ -180,8 +205,7 @@
          * @return {Element}
          */
         readTableColsId(table) {
-            const cols = table.querySelectorAll('tbody > tr');
-
+            const cols = table.querySelectorAll(this.getNeedTrSelectorFromSetting());
 
             let colsId = [];
 
@@ -197,11 +221,13 @@
                     attributeId = iterator;
                 }
 
+
                 let button = this.createElementShowButton(tr);
                 this.handleButton(button, attributeId);
 
 
                 const modal = new $.Modal(button);
+                modal.setTitle(this.createStepButtons(iterator, cols.length, attributeId));
 
                 colsId[attributeId] = {'button': button, id: attributeId, 'tr': tr, 'modal': modal};
 
@@ -213,6 +239,31 @@
 
         }
 
+        createStepButtons(current, max, attrId) {
+            let $this = this;
+            const step = (id, stepWhere = 'up') => {
+                const button = document.createElement('button');
+
+                button.innerText = stepWhere;
+
+                $this.handleButton(button, attrId);
+
+                return button;
+            };
+
+            let result = [];
+
+            if (current > 1) {
+                result.push(step(current - 1, 'down'));
+            }
+
+            if (current < max) {
+                result.push(step(current + 1, 'up'));
+            }
+
+            return result;
+
+        }
 
         /**
          * Render side navigation by response
@@ -244,9 +295,12 @@
 
 
             if (result.length > 0) {
-                const container = EntriesType.createContainer(result.join('\n'));
+
+                const container = EntriesType.createContainer(result);
 
                 const modal = this.colsId[id].modal;
+
+                console.log(container);
 
                 modal.content(container);
 
@@ -254,8 +308,6 @@
 
             }
 
-
-            console.log(result);
         }
 
         /**
@@ -330,6 +382,14 @@
                 throw new Error("Undefined apiHandler in setting");
             }
             return this.getInSetting('apiHandler');
+        }
+
+        /**
+         * Get from setting key for array of td. Need for insert button in td
+         * @return {number|string}
+         */
+        getNeedTdIdFromSetting() {
+            return this.getInSetting('tdId', 0);
         }
 
         /**

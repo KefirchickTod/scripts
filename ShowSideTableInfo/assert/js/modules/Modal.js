@@ -30,13 +30,21 @@ export class Modal {
      * @return {Modal}
      */
     content(content) {
-        if (typeof content != "string") {
-            content[0].outerHTML;
-        }
+
         this.body = content;
         return this;
     }
 
+
+    /**
+     * Set header for modal
+     * @param title {string|HTMLElement|Array}
+     * @return {this}
+     */
+    setTitle(title) {
+        this.title = title;
+        return this;
+    }
 
     /**
      * Easy method for create dom element
@@ -131,7 +139,16 @@ export class Modal {
         };
 
         const header = append => {
-            return Modal.createElement('div', ['modal-header'], {}, append);
+            const element = Modal.createElement('div', ['modal-header'], {});
+            let title = $this.title;
+
+            if (!Array.isArray(title)) {
+                title = [title];
+            }
+
+            element.append(...title, append);
+            return element;
+
         };
 
         const closeButton = append => {
@@ -153,6 +170,10 @@ export class Modal {
         const body = (content, append = null) => {
             let element = Modal.createElement('div', ['modal-body'], {}, append);
 
+            if (typeof content != 'string') {
+                element.append(content);
+                return element;
+            }
             element.innerHTML += content;
 
             return element;
@@ -161,6 +182,7 @@ export class Modal {
         const containerElement = () => {
             let element = container();
             element.appendChild(header(closeButton()));
+
             element.appendChild(body($this.body));
             return element;
         };
