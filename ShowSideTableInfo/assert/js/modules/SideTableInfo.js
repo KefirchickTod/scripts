@@ -1,11 +1,11 @@
 (function (root, factory) {
     if (typeof define === 'function' & define.amd) {
 
-        define(['@models/Modal'], factory);
+        define(['./Modal'], factory);
 
     } else if (typeof exports === 'object') {
 
-        module.exports = factory(require('@models/Modal'));
+        module.exports = factory(require('./Modal'));
 
     } else {
 
@@ -141,14 +141,36 @@
 
         static processing = [];
 
+
+        /**
+         * Render new buttons for refresh table
+         */
+        refresh() {
+            this.colsId = this.readTableColsId(this.table)
+        }
+
         constructor(table, settings = {}) {
             this.setting = settings;
 
             this.table = table;
 
             this.colsId = this.readTableColsId(table);
+
+            if (this.hasInSetting('listener')) {
+                this.initCustomEvent();
+            }
         }
 
+        /**
+         * Init custom listener for dynamiclly dispatchig
+         */
+        initCustomEvent() {
+            let $this = this;
+            this.table.addEventListener(this.getInSetting('listener', 'updateTable'), () => {
+                console.log("Dispatched event");
+                $this.refresh();
+            })
+        }
 
         /**
          * Register custom type processor
@@ -242,8 +264,11 @@
         createStepButtons(current, max, attrId) {
             let $this = this;
             const step = (id, stepWhere = 'up') => {
+
+
                 const button = document.createElement('button');
 
+                button.classList.add(`side-info-step-${stepWhere}`);
                 button.innerText = stepWhere;
 
                 $this.handleButton(button, attrId);
@@ -254,11 +279,11 @@
             let result = [];
 
             if (current > 1) {
-                result.push(step(current - 1, 'down'));
+                result.push(step(current - 1, 'up'));
             }
 
-            if (current < max) {
-                result.push(step(current + 1, 'up'));
+            if (current < (max - 1)) {
+                result.push(step(current + 1, 'down'));
             }
 
             return result;
@@ -300,7 +325,6 @@
 
                 const modal = this.colsId[id].modal;
 
-                console.log(container);
 
                 modal.content(container);
 

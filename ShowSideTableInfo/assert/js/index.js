@@ -37,8 +37,12 @@ window.addEventListener("DOMContentLoaded", () => {
                             }
                         ],
                     }
-                }
+                },
+                listener: 'updateTable'
             });
+
+
+        // table.dispatchEvent(new Event('updateTable', {bubbles: true,}));
 
         console.log(info);
     })();

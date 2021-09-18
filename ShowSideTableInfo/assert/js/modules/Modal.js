@@ -90,10 +90,21 @@ export class Modal {
         });
     }
 
+    ifOpenClose() {
+        const close = document.querySelectorAll('.modal .close');
+        for (let closeTrigger of close) {
+            closeTrigger.click();
+        }
+    }
+
     /**
      * Trigger click to button(render model without listener)
      */
+
     trigger() {
+        this.ifOpenClose();
+
+
         const modal = this.createModalElement();
         modal.classList.add('in');
 
