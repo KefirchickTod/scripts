@@ -207,7 +207,15 @@
 
             infoButton.textContent += "Show side info";
 
-            td.appendChild(infoButton);
+
+            td.appendChild(
+                (() => {
+                    const el = document.createElement('div');
+                    el.classList.add("container-show-info-btn");
+                    el.appendChild(infoButton);
+                    return el;
+                })()
+            );
 
             return infoButton;
         }
