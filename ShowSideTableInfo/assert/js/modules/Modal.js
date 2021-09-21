@@ -106,8 +106,8 @@ export class Modal {
 
 
         const modal = this.createModalElement();
-        modal.classList.add('in');
-
+        modal.children[0].classList.add('in');
+        modal.style['display'] = 'block';
 
         document.body.appendChild(modal);
         const close = modal.querySelector('.close');
@@ -205,7 +205,12 @@ export class Modal {
             )
         );
 
-        return modal;
+
+        const modalContainer = Modal.createElement('div', ['side-modal-container-kep']);
+
+        modalContainer.appendChild(modal);
+
+        return modalContainer;
 
 
     }
