@@ -1,33 +1,33 @@
 Element.prototype.appendAfter = function (element) {
     element.parentNode.insertBefore(this, element.nextSibling);
-}
+} //todo entree ';'
 
 function noop() {
 }
 
 function _createModalFooter(buttons = []) {
     if (buttons.length === 0) {
-        return document.createElement('div')
+        return document.createElement('div') //todo entree ';'
     }
-    const wrap = document.createElement('div')
-    wrap.classList.add('modal-footer')
+    const wrap = document.createElement('div') //todo entree ';'
+    wrap.classList.add('modal-footer') //todo entree ';'
 
     buttons.forEach(btn => {
-        const $btn = document.createElement('button')
-        $btn.textContent = btn.text
-        $btn.classList.add('btn')
-        $btn.classList.add(`btn-${btn.type || 'secondary'}`)
-        $btn.onclick = btn.handler || noop
+        const $btn = document.createElement('button') //todo entree ';'
+        $btn.textContent = btn.text //todo entree ';'
+        $btn.classList.add('btn') //todo entree ';'
+        $btn.classList.add(`btn-${btn.type || 'secondary'}`) //todo entree ';'
+        $btn.onclick = btn.handler || noop //todo entree ';'
         wrap.appendChild($btn);
-    })
+    }) //todo entree ';'
 
     return wrap;
 }
 
 function _createModal(options) {
-    const DEFAULT_WIDTH = '600px'
+    const DEFAULT_WIDTH = '600px' //todo entree ';'
     const modal = document.createElement('div');
-    modal.classList.add('vmodal')
+    modal.classList.add('vmodal') //todo entree ';'
     modal.insertAdjacentHTML('afterbegin', `
      <div class= "modal-overlay" data-close="true" >
             <div class="modal-window" style="width: ${options.width || DEFAULT_WIDTH}" >
@@ -40,10 +40,10 @@ function _createModal(options) {
     </div>
 
     </div>
-    </div>`)
+    </div>`) //todo entree ';'
 
     const footer = _createModalFooter(options.footerButtons);
-    footer.appendAfter(modal.querySelector('[data-content]'))
+    footer.appendAfter(modal.querySelector('[data-content]')) //todo entree ';'
     document.body.appendChild(modal);
     return modal;
 }
@@ -63,34 +63,34 @@ $.modal = function (options) {
         },
         close() {
             closing = true;
-            $modal.classList.remove('open')
+            $modal.classList.remove('open') //todo entree ';'
             $modal.classList.add('hide');
             setTimeout(() => {
-                $modal.classList.remove('hide')
+                $modal.classList.remove('hide') //todo entree ';'
                 closing = false;
                 if (typeof options.onClose() === 'function') {
                     options.onClose()
                 }
             }, ANIMATION_SPEED)
         },
-    }
+    } //todo entree ';'
 
     const listener = event => {
 
         if (event.target.dataset.close) {
-            modal.close()
+            modal.close() //todo entree ';'
         }
-    }
+    } //todo entree ';'
     $modal.addEventListener('click', listener);
 
     return Object.assign(modal, {
         destroy() {
             $modal.parentNode.removeChild($modal);
-            $modal.removeEventListener('click', listener)
+            $modal.removeEventListener('click', listener) //todo entree ';'
             destroyed = true;
         },
         setContent(html) {
             $modal.querySelector('[data-content]').innerHTML = html;
         }
     });
-}
+} //todo entree ';'
