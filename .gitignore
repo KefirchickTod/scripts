@@ -1,2 +1,3 @@
 # Project exclude paths
 /ModuleListenner/node_modules/
+/LoaderEvent/node_modules/
