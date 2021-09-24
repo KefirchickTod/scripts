@@ -1,6 +1,5 @@
 import {Progress} from "./modules/Progress";
 
-
 window.addEventListener("DOMContentLoaded", () => {
     (function () {
 
@@ -11,9 +10,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const progress = new Progress(url);
 
-            progress.start();
-
-            progress.downloading();
+            progress.download();
 
             return false;
         })

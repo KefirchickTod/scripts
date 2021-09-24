@@ -1,0 +1,35 @@
+
+.progress-container-modal {
+
+  position: fixed;
+  width: 100%;
+  top: -10px;
+  left: 0;
+
+  height: 100%;
+  background: rgba(0, 0, 0, 0.12);
+
+  z-index: 88;
+
+  progress {
+
+
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+    padding: 0;
+    height: 7px;
+
+    &::-webkit-progress-bar {
+      background: transparent;
+    }
+
+    &::-webkit-progress-value {
+      background: rgba(0, 128, 0, 0.51);
+    }
+
+    &::-moz-progress-bar {
+      background: transparent;
+    }
+  }
+}

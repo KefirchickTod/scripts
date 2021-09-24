@@ -1,3 +1,5 @@
+import './scss/app.scss'
+
 export class Progress {
 
 
@@ -7,33 +9,45 @@ export class Progress {
     }
 
 
+    download() {
+        const progressContainer = this.start();
+        return this.downloading(progressContainer);
+    }
+
     start() {
         console.log("Start.....");
 
+        const containerProgress = this.createProgressContainer();
+
         if (this.hasInSetting('progressInsert')) {
             const insert = document.getElementById(this.getInSetting('progressInsert'));
-            insert.appendChild(this.createProgressContainer());
-            return;
+            insert.appendChild(containerProgress);
+            return containerProgress;
         }
 
-        document.appendChild(this.createProgressContainer());
-        return;
+        //console.log(containerProgress);
+
+        document.body.append(containerProgress);
+
+        return containerProgress;
+
 
     }
 
-    downloading() {
+    downloading(containerProgress) {
         let $this = this;
         const load = new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             xhr.open("GET", $this.url, true);
             xhr.responseType = 'arraybuffer';
-
+            const progress = document.getElementById('temp-progress-download');
             xhr.onprogress = e => {
-                const progress = document.getElementById('temp-progress-download');
+                //const progress = containerProgress.getElementById('temp-progress-download');
 
                 if (e.lengthComputable) {
                     let calc = parseInt((e.loaded / e.total) * 100, 10);
-                    console.log(calc);
+
+                    progress.value = calc;
                 }
 
             };
@@ -55,11 +69,21 @@ export class Progress {
 
             xhr.send();
 
+        }).then((objectUrl) => {
+            $this.end(containerProgress);
         });
+
+        return load;
     }
 
-    end() {
-        console.log(end);
+    end(progress) {
+
+        console.log("End........");
+
+
+        progress.remove();
+
+        // console.log(end);
     }
 
     getInSetting(key, def = null) {
@@ -87,6 +111,7 @@ export class Progress {
 
 
         const container = document.createElement('div');
+        container.classList.add('progress-container-modal');
 
         const progress = document.createElement('progress');
 
@@ -95,7 +120,7 @@ export class Progress {
 
         progress.setAttribute("id", 'temp-progress-download');
 
-        container.appendChild(progress);
+        container.append(progress);
 
         return container;
     }

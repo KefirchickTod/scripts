@@ -1,0 +1,27 @@
+.progress-container-modal {
+  position: fixed;
+  width: 100%;
+  top: -10px;
+  left: 0;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.12);
+  z-index: 88;
+}
+.progress-container-modal progress {
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+  padding: 0;
+  height: 7px;
+}
+.progress-container-modal progress::-webkit-progress-bar {
+  background: transparent;
+}
+.progress-container-modal progress::-webkit-progress-value {
+  background: rgba(0, 128, 0, 0.51);
+}
+.progress-container-modal progress::-moz-progress-bar {
+  background: transparent;
+}
+
+/*# sourceMappingURL=app.css.map */
