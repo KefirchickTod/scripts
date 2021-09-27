@@ -82,7 +82,7 @@
             const text = document.createElement('span');
 
             title.innerText += this.entries.title;
-            text.innerText += this.entries.value;
+            text.innerHTML += this.entries.value;
 
             typeContainer.classList.add('entries-type-text');
 

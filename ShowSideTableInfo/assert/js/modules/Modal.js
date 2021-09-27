@@ -107,7 +107,7 @@ export class Modal {
 
         const modal = this.createModalElement();
         modal.children[0].classList.add('in');
-        modal.style['display'] = 'block';
+        modal.children[0].style['display'] = 'block';
 
         document.body.appendChild(modal);
         const close = modal.querySelector('.close');
