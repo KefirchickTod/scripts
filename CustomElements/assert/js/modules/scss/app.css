@@ -1,0 +1,9 @@
+.wing-container:before {
+  background-image: url("/img/wing.png"); }
+.wing-container ul {
+  display: none; }
+
+.wing-container.open ul {
+  display: block; }
+
+/*# sourceMappingURL=app.css.map */
