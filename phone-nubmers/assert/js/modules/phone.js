@@ -1,12 +1,20 @@
 `use strict`;
 
+import PhoneJson from "./phone-json";
+
 const phoneJsonUrl = 'https://api.npoint.io/d0ac985ca62e2966ec70';
 const MAXLENGTH = 13;
+
+
 export default class Phone {
+
+    #option = null
 
     constructor(list, ...selector) {
         this.selector = selector;
-        this.list = list;
+        this.list = new PhoneJson(list);
+
+        this.events();
     }
 
     /**
@@ -14,17 +22,28 @@ export default class Phone {
      * @param selector {HTMLElement}
      * @return boolean
      */
-    hasSelect(selector){
+    hasSelect(selector) {
         return selector.parentElement.querySelectorAll('select').length === 1;
     }
 
+
     /**
      * Create selector <select> for parent element
-     * @return HTMLElement
+     * @return {HTMLElement}
      * @private
      */
-    _createSelect(){
+    _createSelect() {
+
         const dropdown = document.createElement('select');
+
+        const settings = this.list.toOption();
+
+        for (let s of settings) {
+            const o = document.createElement('option');
+            o.setAttribute('value', s.value);
+            o.innerText = s.text;
+            dropdown.appendChild(o);
+        }
 
         return dropdown;
     }
@@ -36,24 +55,55 @@ export default class Phone {
      * @param dropdown {HTMLElement}
      * @private
      */
-    _addSelect(selector, dropdown){
+    _addSelect(selector, dropdown) {
         selector.parentElement.appendChild(dropdown);
     }
 
     /**
      * Init event for each selector
      */
-    events(){
+    events() {
         const selectors = this.selector;
 
-        for(let selector of selectors){
-            let dropdown = null;
-            if(!this.hasSelect(selector)){
-                this._addSelect(selector, this._createSelect());
-            }}
+        let changeSwitch = false;
 
+        for (let selector of selectors) {
+            let dropdown = this._createSelect();
 
+            this._addSelect(selector, dropdown);
 
+            dropdown.addEventListener('change', (e) => {
+                const value = e.target.value;
+
+                if (changeSwitch === true) {
+                    return;
+                }
+
+                if (!selector.value || selector.value > 3) {
+                    selector.value = this.list.getPhoneCode(value);
+                }
+
+            });
+
+            selector.addEventListener('keyup', (e) => {
+                let value = e.target.value;
+
+                if (value[0] !== '+' && value.length > 0) {
+                    value = `+${value}`;
+                    selector.value = value;
+                }
+
+                if (!value || value.length >= 4) {
+                    return;
+                }
+
+                dropdown.value = this.list.getPhoneCountryByMask(value);
+
+                changeSwitch = true;
+                dropdown.dispatchEvent(new Event('change'));
+                changeSwitch = false;
+            });
+        }
     }
 
     /**
